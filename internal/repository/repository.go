@@ -1,13 +1,19 @@
 package repository
 
 import (
+	"github.com/dmnAlex/gophermart/internal/model"
 	"github.com/dmnAlex/gophermart/internal/storage/pg"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
 type RepoIface interface {
-	AddUser(login, password string) error
-	GetPassword(login string) (string, error)
+	AddUser(login, passwordHash string) (uuid.UUID, error)
+	GetByLogin(login string) (uuid.UUID, string, error)
+
+	AddOrder(number string, userID uuid.UUID) error
+	GetOrderUserID(number string) (uuid.UUID, error)
+	GetOrdersByLogin(userID uuid.UUID) ([]model.Order, error)
 
 	Ping() error
 	Close() error

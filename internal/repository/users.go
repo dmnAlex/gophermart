@@ -2,38 +2,42 @@ package repository
 
 import (
 	"github.com/dmnAlex/gophermart/internal/storage/pg"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
 const addUserSQL = `
-	INSERT INTO users (login, password)
-	VALUES (@login, @password)
+	INSERT INTO users (login, password_hash)
+	VALUES (@login, @password_hash)
+	RETURNING id
 `
 
-func (r *repository) AddUser(login, password string) error {
+func (r *repository) AddUser(login, passwordHash string) (uuid.UUID, error) {
 	args := pgx.NamedArgs{
-		"login":    login,
-		"password": password,
+		"login":         login,
+		"password_hash": passwordHash,
 	}
 
-	res, err := r.db.Exec(addUserSQL, args)
+	var id uuid.UUID
+	err := r.db.QueryRow(addUserSQL, args, &id)
 
-	return pg.HandleExecResult(res, err)
+	return id, pg.WrapAlreadyExists(err)
 }
 
 const getPasswordSQL = `
-	SELECT password
+	SELECT id, password_hash
 	FROM users
 	WHERE login = @login
 `
 
-func (r *repository) GetPassword(login string) (string, error) {
+func (r *repository) GetByLogin(login string) (uuid.UUID, string, error) {
 	args := pgx.NamedArgs{
 		"login": login,
 	}
 
+	var id uuid.UUID
 	var password string
-	err := r.db.QueryRow(getPasswordSQL, args, &password)
+	err := r.db.QueryRow(getPasswordSQL, args, &id, &password)
 
-	return password, pg.WrapNotFound(err)
+	return id, password, pg.WrapNotFound(err)
 }

@@ -11,13 +11,14 @@ import (
 	"github.com/dmnAlex/gophermart/internal/model"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Cookie(consts.AuthTokenName)
 		if err != nil {
-			c.String(http.StatusUnauthorized, "unauthorized")
+			c.Status(http.StatusUnauthorized)
 			c.Abort()
 			return
 		}
@@ -29,13 +30,13 @@ func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 			}
 			return []byte(cfg.JWTSecret), nil
 		})
-		if err != nil || !token.Valid || claims.Login == "" {
-			c.String(http.StatusUnauthorized, "unauthorized")
+		if err != nil || !token.Valid || claims.UserID == uuid.Nil {
+			c.Status(http.StatusUnauthorized)
 			c.Abort()
 			return
 		}
 
-		c.Set("caller", &model.Caller{Login: claims.Login})
+		c.Set("caller", &model.Caller{UserID: claims.UserID})
 		c.Next()
 	}
 }
@@ -50,7 +51,11 @@ func newRouter(h *handler.Handler, cfg *config.Config) *gin.Engine {
 
 	auth := r.Group("/")
 	auth.Use(AuthMiddleware(cfg))
+
 	auth.GET("/ping", h.HandlePing)
+
+	auth.POST("/api/user/orders", h.HandleAPIUserAddOrder)
+	auth.GET("/api/user/orders", h.HandleAPIUserGetOrders)
 
 	return r
 }

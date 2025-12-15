@@ -3,30 +3,31 @@ package service
 import (
 	"github.com/dmnAlex/gophermart/internal/model/errx"
 	"github.com/dmnAlex/gophermart/internal/utils"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
-func (s *service) RegisterUser(login, password string) error {
-	hexPassword := utils.Sha256Hex([]byte(password))
+func (s *service) RegisterUser(login, password string) (uuid.UUID, error) {
+	passwordHash := utils.Sha256Hex([]byte(password))
 
-	return s.repo.AddUser(login, hexPassword)
+	return s.repo.AddUser(login, passwordHash)
 }
 
-func (s *service) CheckPassword(login, password string) error {
-	hexPassword := utils.Sha256Hex([]byte(password))
+func (s *service) CheckPassword(login, password string) (uuid.UUID, error) {
+	passwordHash := utils.Sha256Hex([]byte(password))
 
-	password, err := s.repo.GetPassword(login)
+	userID, storedPasswordHash, err := s.repo.GetByLogin(login)
 	if err != nil {
 		if errors.Is(err, errx.ErrNotFound) {
-			return errx.ErrUnauthorized
+			return uuid.Nil, errx.ErrUnauthorized
 		}
 
-		return errors.Wrap(err, "get password")
+		return uuid.Nil, errors.Wrap(err, "get password")
 	}
 
-	if hexPassword != password {
-		return errx.ErrUnauthorized
+	if passwordHash != storedPasswordHash {
+		return uuid.Nil, errx.ErrUnauthorized
 	}
 
-	return nil
+	return userID, nil
 }

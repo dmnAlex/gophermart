@@ -10,31 +10,33 @@ import (
 	"github.com/dmnAlex/gophermart/internal/model/errx"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
 func (h *Handler) HandleAPIUserRegister(c *gin.Context) {
 	var req model.AuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.String(http.StatusBadRequest, errx.ErrBadRequest.Error())
+		c.Status(http.StatusBadRequest)
 		return
 	}
 
-	if err := h.service.RegisterUser(req.Login, req.Password); err != nil {
+	userID, err := h.service.RegisterUser(req.Login, req.Password)
+	if err != nil {
 		err = errors.Wrap(err, "register user")
 		if errors.Is(err, errx.ErrAlreadyExists) {
-			c.String(http.StatusConflict, errx.ErrAlreadyExists.Error())
+			c.Status(http.StatusConflict)
 			return
 		}
 
-		c.String(http.StatusInternalServerError, errx.ErrInternalError.Error())
+		c.Status(http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
 
-	if err := h.setCookie(c, req.Login); err != nil {
+	if err := h.setCookie(c, userID); err != nil {
 		err = errors.Wrap(err, "set cookie")
-		c.String(http.StatusInternalServerError, errx.ErrInternalError.Error())
+		c.Status(http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
@@ -45,24 +47,25 @@ func (h *Handler) HandleAPIUserRegister(c *gin.Context) {
 func (h *Handler) HandleAPIUserLogin(c *gin.Context) {
 	var req model.AuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.String(http.StatusBadRequest, errx.ErrBadRequest.Error())
+		c.Status(http.StatusBadRequest)
 		return
 	}
 
-	if err := h.service.CheckPassword(req.Login, req.Password); err != nil {
+	userID, err := h.service.CheckPassword(req.Login, req.Password)
+	if err != nil {
 		if errors.Is(err, errx.ErrUnauthorized) {
-			c.String(http.StatusUnauthorized, errx.ErrUnauthorized.Error())
+			c.Status(http.StatusUnauthorized)
 			return
 		}
 
-		c.String(http.StatusInternalServerError, errx.ErrInternalError.Error())
+		c.Status(http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
 
-	if err := h.setCookie(c, req.Login); err != nil {
+	if err := h.setCookie(c, userID); err != nil {
 		err = errors.Wrap(err, "set cookie")
-		c.String(http.StatusInternalServerError, errx.ErrInternalError.Error())
+		c.Status(http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
@@ -70,12 +73,12 @@ func (h *Handler) HandleAPIUserLogin(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (h *Handler) setCookie(c *gin.Context, login string) error {
+func (h *Handler) setCookie(c *gin.Context, userID uuid.UUID) error {
 	claims := &model.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(consts.AuthTokenDutation)),
 		},
-		Login: login,
+		UserID: userID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString([]byte(h.config.JWTSecret))

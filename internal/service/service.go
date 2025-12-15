@@ -1,13 +1,18 @@
 package service
 
 import (
+	"github.com/dmnAlex/gophermart/internal/model"
 	"github.com/dmnAlex/gophermart/internal/repository"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
 type ServiceIface interface {
-	RegisterUser(login, password string) error
-	CheckPassword(login, password string) error
+	RegisterUser(login, password string) (uuid.UUID, error)
+	CheckPassword(login, password string) (uuid.UUID, error)
+
+	AddOrder(number string, userID uuid.UUID) error
+	GetAllOrders(userID uuid.UUID) ([]model.Order, error)
 
 	Ping() error
 }

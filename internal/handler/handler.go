@@ -5,7 +5,6 @@ import (
 
 	"github.com/dmnAlex/gophermart/internal/config"
 	"github.com/dmnAlex/gophermart/internal/logger"
-	"github.com/dmnAlex/gophermart/internal/model/errx"
 	"github.com/dmnAlex/gophermart/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -24,10 +23,10 @@ func NewHandler(s service.ServiceIface, cfg *config.Config) *Handler {
 
 func (h *Handler) HandlePing(c *gin.Context) {
 	if err := h.service.Ping(); err != nil {
-		c.String(http.StatusInternalServerError, errx.ErrInternalError.Error())
+		c.Status(http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
 
-	c.String(http.StatusOK, "OK")
+	c.Status(http.StatusOK)
 }
