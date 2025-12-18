@@ -11,4 +11,6 @@ var (
 	ErrUnprocessable   = errors.New("unprocessable")
 	ErrUnauthorized    = errors.New("unauthorized")
 	ErrInternalError   = errors.New("internal server error")
+
+	ErrInsufficientBalance = errors.New("insufficient balance")
 )

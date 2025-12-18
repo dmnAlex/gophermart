@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (h *Handler) HandleAPIUserRegister(c *gin.Context) {
+func (h *Handler) HandlePostAPIUserRegister(c *gin.Context) {
 	var req model.AuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.Status(http.StatusBadRequest)
@@ -44,7 +44,7 @@ func (h *Handler) HandleAPIUserRegister(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (h *Handler) HandleAPIUserLogin(c *gin.Context) {
+func (h *Handler) HandlePostAPIUserLogin(c *gin.Context) {
 	var req model.AuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.Status(http.StatusBadRequest)

@@ -5,6 +5,7 @@ import (
 	"github.com/dmnAlex/gophermart/internal/storage/pg"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 type RepoIface interface {
@@ -14,6 +15,10 @@ type RepoIface interface {
 	AddOrder(number string, userID uuid.UUID) error
 	GetOrderUserID(number string) (uuid.UUID, error)
 	GetOrdersByLogin(userID uuid.UUID) ([]model.Order, error)
+
+	GetBalance(userID uuid.UUID) (model.Balance, error)
+	AddWithdrawal(userID uuid.UUID, number string, sum decimal.Decimal) (uuid.UUID, error)
+	GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error)
 
 	Ping() error
 	Close() error

@@ -33,3 +33,27 @@ type Order struct {
 func (m *Order) AsIfaceList() []any {
 	return []any{&m.Number, &m.Status, &m.Accrual, &m.UploadedAt}
 }
+
+type Withdrawal struct {
+	Order       string          `json:"order"`
+	Sum         decimal.Decimal `json:"sum"`
+	ProcessedAt time.Time       `json:"processed_at"`
+}
+
+func (m *Withdrawal) AsIfaceList() []any {
+	return []any{&m.Order, &m.Sum, &m.ProcessedAt}
+}
+
+type Balance struct {
+	Current   decimal.Decimal `json:"current"`
+	Withdrawn decimal.Decimal `json:"withdrawn"`
+}
+
+func (m *Balance) AsIfaceList() []any {
+	return []any{&m.Current, &m.Withdrawn}
+}
+
+type WithdrawalRequest struct {
+	Order string          `json:"order"`
+	Sum   decimal.Decimal `json:"sum"`
+}

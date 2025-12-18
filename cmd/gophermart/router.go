@@ -46,16 +46,20 @@ func newRouter(h *handler.Handler, cfg *config.Config) *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(logger.LoggerMiddleware())
 
-	r.POST("/api/user/register", h.HandleAPIUserRegister)
-	r.POST("/api/user/login", h.HandleAPIUserLogin)
+	r.POST("/api/user/register", h.HandlePostAPIUserRegister)
+	r.POST("/api/user/login", h.HandlePostAPIUserLogin)
 
 	auth := r.Group("/")
 	auth.Use(AuthMiddleware(cfg))
 
 	auth.GET("/ping", h.HandlePing)
 
-	auth.POST("/api/user/orders", h.HandleAPIUserAddOrder)
-	auth.GET("/api/user/orders", h.HandleAPIUserGetOrders)
+	auth.POST("/api/user/orders", h.HandlePostAPIUserAddOrder)
+	auth.GET("/api/user/orders", h.HandleGetAPIUserGetOrders)
+
+	auth.GET("/api/user/balance", h.HandleGetAPIUserBalance)
+	auth.POST("/api/user/balance/withdraw", h.HandlePostAPIUserBalanceWithdraw)
+	auth.GET("/api/user/withdrawals", h.HandleGetAPIUserWithdrawals)
 
 	return r
 }

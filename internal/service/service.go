@@ -5,6 +5,7 @@ import (
 	"github.com/dmnAlex/gophermart/internal/repository"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 type ServiceIface interface {
@@ -13,6 +14,10 @@ type ServiceIface interface {
 
 	AddOrder(number string, userID uuid.UUID) error
 	GetAllOrders(userID uuid.UUID) ([]model.Order, error)
+
+	GetBalance(userID uuid.UUID) (model.Balance, error)
+	AddWithdrawal(userID uuid.UUID, number string, sum decimal.Decimal) error
+	GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error)
 
 	Ping() error
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (h *Handler) HandleAPIUserAddOrder(c *gin.Context) {
+func (h *Handler) HandlePostAPIUserAddOrder(c *gin.Context) {
 	body, err := c.GetRawData()
 	if err != nil || len(body) == 0 {
 		c.Status(http.StatusBadRequest)
@@ -42,7 +42,7 @@ func (h *Handler) HandleAPIUserAddOrder(c *gin.Context) {
 	c.Status(http.StatusAccepted)
 }
 
-func (h *Handler) HandleAPIUserGetOrders(c *gin.Context) {
+func (h *Handler) HandleGetAPIUserGetOrders(c *gin.Context) {
 	caller := c.MustGet("caller").(*model.Caller)
 	orders, err := h.service.GetAllOrders(caller.UserID)
 	if err != nil {
