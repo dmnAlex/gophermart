@@ -5,14 +5,13 @@ import (
 	"github.com/dmnAlex/gophermart/internal/model/errx"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"github.com/shopspring/decimal"
 )
 
 func (s *service) GetBalance(userID uuid.UUID) (model.Balance, error) {
 	return s.repo.GetBalance(userID)
 }
 
-func (s *service) AddWithdrawal(userID uuid.UUID, number string, sum decimal.Decimal) error {
+func (s *service) AddWithdrawal(userID uuid.UUID, number string, sum float64) error {
 	_, err := s.repo.AddWithdrawal(userID, number, sum)
 	if errors.Is(err, errx.ErrNotFound) {
 		return errx.ErrInsufficientBalance

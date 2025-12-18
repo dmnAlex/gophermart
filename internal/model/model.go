@@ -6,7 +6,6 @@ import (
 	"github.com/dmnAlex/gophermart/internal/consts/orderstatus"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type Caller struct {
@@ -26,7 +25,7 @@ type Claims struct {
 type Order struct {
 	Number     string           `json:"number"`
 	Status     orderstatus.Type `json:"status"`
-	Accrual    *decimal.Decimal `json:"accrual,omitempty"`
+	Accrual    *float64         `json:"accrual,omitempty"`
 	UploadedAt time.Time        `json:"uploaded_at"`
 }
 
@@ -35,9 +34,9 @@ func (m *Order) AsIfaceList() []any {
 }
 
 type Withdrawal struct {
-	Order       string          `json:"order"`
-	Sum         decimal.Decimal `json:"sum"`
-	ProcessedAt time.Time       `json:"processed_at"`
+	Order       string    `json:"order"`
+	Sum         float64   `json:"sum"`
+	ProcessedAt time.Time `json:"processed_at"`
 }
 
 func (m *Withdrawal) AsIfaceList() []any {
@@ -45,8 +44,8 @@ func (m *Withdrawal) AsIfaceList() []any {
 }
 
 type Balance struct {
-	Current   decimal.Decimal `json:"current"`
-	Withdrawn decimal.Decimal `json:"withdrawn"`
+	Current   float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
 }
 
 func (m *Balance) AsIfaceList() []any {
@@ -54,6 +53,6 @@ func (m *Balance) AsIfaceList() []any {
 }
 
 type WithdrawalRequest struct {
-	Order string          `json:"order"`
-	Sum   decimal.Decimal `json:"sum"`
+	Order string  `json:"order"`
+	Sum   float64 `json:"sum"`
 }

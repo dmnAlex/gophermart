@@ -5,7 +5,6 @@ import (
 	"github.com/dmnAlex/gophermart/internal/storage/pg"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/shopspring/decimal"
 )
 
 const getBalanceSQL = `
@@ -54,7 +53,7 @@ const addWithdrawalSQL = `
 	SELECT id FROM attempt_insert
 `
 
-func (r *repository) AddWithdrawal(userID uuid.UUID, number string, sum decimal.Decimal) (uuid.UUID, error) {
+func (r *repository) AddWithdrawal(userID uuid.UUID, number string, sum float64) (uuid.UUID, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 		"number":  number,
