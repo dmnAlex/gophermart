@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/dmnAlex/gophermart/internal/consts/accrualstatus"
 	"github.com/dmnAlex/gophermart/internal/consts/orderstatus"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
@@ -23,6 +24,7 @@ type Claims struct {
 }
 
 type Order struct {
+	ID         uuid.UUID        `json:"-"`
 	Number     string           `json:"number"`
 	Status     orderstatus.Type `json:"status"`
 	Accrual    *float64         `json:"accrual,omitempty"`
@@ -30,7 +32,7 @@ type Order struct {
 }
 
 func (m *Order) AsIfaceList() []any {
-	return []any{&m.Number, &m.Status, &m.Accrual, &m.UploadedAt}
+	return []any{&m.ID, &m.Number, &m.Status, &m.Accrual, &m.UploadedAt}
 }
 
 type Withdrawal struct {
@@ -55,4 +57,10 @@ func (m *Balance) AsIfaceList() []any {
 type WithdrawalRequest struct {
 	Order string  `json:"order"`
 	Sum   float64 `json:"sum"`
+}
+
+type AccrualResponse struct {
+	Order   string             `json:"order"`
+	Status  accrualstatus.Type `json:"status"`
+	Accrual *float64           `json:"accrual"`
 }

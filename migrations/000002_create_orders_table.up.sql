@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS orders (
     number TEXT NOT NULL UNIQUE,
     status order_status NOT NULL DEFAULT 'NEW',
     accrual NUMERIC(15, 2) NULL CHECK (accrual >= 0),
-    uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_locked BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_orders_user_id_uploaded_at ON orders(user_id, uploaded_at DESC);

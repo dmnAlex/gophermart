@@ -3,11 +3,15 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/dmnAlex/gophermart/internal/config"
 	"github.com/dmnAlex/gophermart/internal/handler"
 	"github.com/dmnAlex/gophermart/internal/logger"
 	"github.com/dmnAlex/gophermart/internal/repository"
+	"github.com/dmnAlex/gophermart/internal/server"
 	"github.com/dmnAlex/gophermart/internal/service"
 	"github.com/dmnAlex/gophermart/internal/storage/pg"
 )
@@ -33,11 +37,15 @@ func main() {
 	repo := repository.NewRepository(db)
 	defer repo.Close()
 
-	service := service.NewService(repo)
+	service := service.NewService(repo, cfg)
 	handler := handler.NewHandler(service, cfg)
-	router := newRouter(handler, cfg)
+	server := server.NewServer(handler, cfg)
 
-	if err := router.Run(cfg.RunAddress); err != nil {
-		log.Fatalf("router run error: %v", err)
-	}
+	go server.Run()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	server.Shutdown()
 }

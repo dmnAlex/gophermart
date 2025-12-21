@@ -1,6 +1,8 @@
 package service
 
 import (
+	"github.com/dmnAlex/gophermart/internal/config"
+	"github.com/dmnAlex/gophermart/internal/consts"
 	"github.com/dmnAlex/gophermart/internal/model"
 	"github.com/dmnAlex/gophermart/internal/repository"
 	"github.com/google/uuid"
@@ -18,15 +20,23 @@ type ServiceIface interface {
 	AddWithdrawal(userID uuid.UUID, number string, sum float64) error
 	GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error)
 
+	FreeStaleLocks() error
+
 	Ping() error
 }
 
 type service struct {
-	repo repository.RepoIface
+	repo       repository.RepoIface
+	ordersChan chan *model.Order
+	cfg        *config.Config
 }
 
-func NewService(repo repository.RepoIface) ServiceIface {
-	return &service{repo: repo}
+func NewService(repo repository.RepoIface, cfg *config.Config) ServiceIface {
+	return &service{
+		repo:       repo,
+		ordersChan: make(chan *model.Order, consts.OrderChanSize),
+		cfg:        cfg,
+	}
 }
 
 func (s *service) Ping() error {

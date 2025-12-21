@@ -5,6 +5,7 @@ import (
 	"github.com/dmnAlex/gophermart/internal/storage/pg"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/pkg/errors"
 )
 
 const getBalanceSQL = `
@@ -18,7 +19,7 @@ const getBalanceSQL = `
 	GROUP BY u.id
 `
 
-func (r *repository) GetBalance(userID uuid.UUID) (model.Balance, error) {
+func (r *Repo) GetBalance(userID uuid.UUID) (model.Balance, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 	}
@@ -27,6 +28,22 @@ func (r *repository) GetBalance(userID uuid.UUID) (model.Balance, error) {
 	err := r.db.QueryRow(getBalanceSQL, args, balance.AsIfaceList()...)
 
 	return balance, pg.WrapNotFound(err)
+}
+
+const lockUserForUpdateSQL = `
+	SELECT 1
+	FROM users
+	WHERE id = @id
+	FOR UPDATE
+`
+
+func (r *Repo) LockUserForUpdate(userID uuid.UUID) error {
+	args := pgx.NamedArgs{
+		"id": userID,
+	}
+	_, err := r.db.Exec(lockUserForUpdateSQL, args)
+
+	return errors.Wrap(err, "exec")
 }
 
 const addWithdrawalSQL = `
@@ -53,7 +70,7 @@ const addWithdrawalSQL = `
 	SELECT id FROM attempt_insert
 `
 
-func (r *repository) AddWithdrawal(userID uuid.UUID, number string, sum float64) (uuid.UUID, error) {
+func (r *Repo) AddWithdrawal(userID uuid.UUID, number string, sum float64) (uuid.UUID, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 		"number":  number,
@@ -72,7 +89,7 @@ const getWithdrawalsSQL = `
 	WHERE user_id = @user_id
 `
 
-func (r *repository) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error) {
+func (r *Repo) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 	}

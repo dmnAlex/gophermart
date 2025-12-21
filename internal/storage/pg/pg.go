@@ -50,9 +50,12 @@ func applyMigrations(pool *pgxpool.Pool, migrationsPath string) error {
 	if err != nil {
 		return errors.Wrap(err, "migrate with db instance")
 	}
+	defer m.Close()
+
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return errors.Wrap(err, "up migrations")
 	}
+
 	return nil
 }
 
