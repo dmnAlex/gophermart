@@ -7,6 +7,7 @@ import (
 	"github.com/dmnAlex/gophermart/internal/logger"
 	"github.com/dmnAlex/gophermart/internal/model"
 	"github.com/dmnAlex/gophermart/internal/model/errx"
+	"github.com/dmnAlex/gophermart/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
@@ -32,7 +33,7 @@ func (h *Handler) HandlePostAPIUserBalanceWithdraw(c *gin.Context) {
 		return
 	}
 
-	if !isValidLuhn(req.Order) {
+	if !utils.IsValidLuhn(req.Order) {
 		c.Status(http.StatusUnprocessableEntity)
 		return
 	}
