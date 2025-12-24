@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dmnAlex/gophermart/internal/config"
 	"github.com/dmnAlex/gophermart/internal/consts"
 	"github.com/dmnAlex/gophermart/internal/consts/accrualstatus"
 	"github.com/dmnAlex/gophermart/internal/consts/orderstatus"
@@ -18,21 +17,24 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *service) FetchNextOrderBatch(cfg *config.Config) error {
+func (s *service) fetchNextOrderBatch() error {
 	orders, err := s.repo.LockAndGetOrderBatch(consts.OrderBatchSize)
 	if err != nil {
 		return errors.Wrap(err, "lock and get order")
 	}
 
 	for i := range orders {
-		order := orders[i]
-		s.ordersChan <- &order
+		select {
+		case <-s.ordersStopChan:
+			return nil
+		case s.ordersChan <- &orders[i]:
+		}
 	}
 
 	return nil
 }
 
-func (s *service) ProcessOrder(cfg *config.Config, order *model.Order) error {
+func (s *service) processOrder(order *model.Order) error {
 	defer func() {
 		if err := s.repo.UpdateOrder(order.ID, order.Status, order.Accrual); err != nil {
 			logger.Log.Error("update order", zap.Error(err))
@@ -42,7 +44,7 @@ func (s *service) ProcessOrder(cfg *config.Config, order *model.Order) error {
 	ctx, cancel := context.WithTimeout(context.Background(), consts.AccrualTimeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/%s", cfg.AccrualSystemAddress, order.Number), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/api/orders/%s", s.cfg.AccrualSystemAddress, order.Number), nil)
 	if err != nil {
 		return errors.Wrap(err, "create request with context")
 	}
@@ -76,7 +78,7 @@ func (s *service) ProcessOrder(cfg *config.Config, order *model.Order) error {
 	return nil
 }
 
-func (s *service) FreeStaleLocks() error {
+func (s *service) freeStaleLocks() error {
 	threshold := time.Now().Add(-consts.OrderLockTimeout)
 
 	return s.repo.FreeStaleLocks(threshold)

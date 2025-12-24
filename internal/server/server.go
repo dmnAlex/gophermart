@@ -36,7 +36,7 @@ func (s *Server) Run() {
 }
 
 func (s *Server) Shutdown() {
-	logger.Log.Info("Shutting down server...")
+	logger.Log.Info("shutting down server")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

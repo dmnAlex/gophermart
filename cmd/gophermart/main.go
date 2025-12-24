@@ -38,6 +38,8 @@ func main() {
 	defer repo.Close()
 
 	service := service.NewService(repo, cfg)
+	service.StartAccrualWorkers()
+
 	handler := handler.NewHandler(service, cfg)
 	server := server.NewServer(handler, cfg)
 
@@ -47,5 +49,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
+	cancel()
+	service.StopAccrualWorkers()
 	server.Shutdown()
 }

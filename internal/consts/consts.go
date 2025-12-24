@@ -9,8 +9,9 @@ const (
 	AccrualTimeout     = 10 * time.Second
 	AccrualWorkerCount = 5
 
-	OrderLockTimeout   = 3 * time.Minute
-	OrderLockFreeDelay = 1 * time.Second
+	OrderLockTimeout = 3 * time.Minute
+	LockFreeDelay    = 1 * time.Second
+	FetchOrdersDelay = 500 * time.Millisecond
 
 	OrderChanSize  = 100
 	OrderBatchSize = 10
