@@ -4,7 +4,7 @@ import "time"
 
 const (
 	AuthTokenName     = "auth_token"
-	AuthTokenDutation = 1 * time.Hour
+	AuthTokenDuration = 1 * time.Hour
 
 	AccrualTimeout     = 10 * time.Second
 	AccrualWorkerCount = 5

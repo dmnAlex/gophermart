@@ -12,7 +12,7 @@ const addOrderSQL = `
 	VALUES (@number, @user_id)
 `
 
-func (r *Repo) AddOrder(number string, userID uuid.UUID) error {
+func (r *GophermartRepository) AddOrder(number string, userID uuid.UUID) error {
 	args := pgx.NamedArgs{
 		"number":  number,
 		"user_id": userID,
@@ -29,7 +29,7 @@ const getOrderCreatorLoginSQL = `
 	WHERE number = @number
 `
 
-func (r *Repo) GetOrderUserID(number string) (uuid.UUID, error) {
+func (r *GophermartRepository) GetOrderUserID(number string) (uuid.UUID, error) {
 	var userID uuid.UUID
 	args := pgx.NamedArgs{
 		"number": number,
@@ -47,7 +47,7 @@ const getOrdersByLogin = `
 	ORDER BY uploaded_at DESC
 `
 
-func (r *Repo) GetOrdersByLogin(userID uuid.UUID) ([]model.Order, error) {
+func (r *GophermartRepository) GetOrdersByLogin(userID uuid.UUID) ([]model.Order, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 	}

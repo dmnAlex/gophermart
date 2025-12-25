@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *service) StartAccrualWorkers() {
+func (s *GophermartService) StartAccrualWorkers() {
 	for i := range consts.AccrualWorkerCount {
 		s.wg.Add(1)
 		go s.accrualWorker(i)
@@ -21,12 +21,12 @@ func (s *service) StartAccrualWorkers() {
 	go s.fetchWorker()
 }
 
-func (s *service) StopAccrualWorkers() {
+func (s *GophermartService) StopAccrualWorkers() {
 	close(s.ordersStopChan)
 	s.wg.Wait()
 }
 
-func (s *service) accrualWorker(workerID int) {
+func (s *GophermartService) accrualWorker(workerID int) {
 	defer s.wg.Done()
 
 	logger.Log.Info("start accrual worker", zap.Int("worker_id", workerID))
@@ -48,7 +48,7 @@ func (s *service) accrualWorker(workerID int) {
 	}
 }
 
-func (s *service) staleLocksWorker() {
+func (s *GophermartService) staleLocksWorker() {
 	defer s.wg.Done()
 
 	logger.Log.Info("start stale locks worker")
@@ -69,7 +69,7 @@ func (s *service) staleLocksWorker() {
 	}
 }
 
-func (s *service) fetchWorker() {
+func (s *GophermartService) fetchWorker() {
 	defer s.wg.Done()
 
 	logger.Log.Info("start fetch worker")

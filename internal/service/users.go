@@ -7,13 +7,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (s *service) RegisterUser(login, password string) (uuid.UUID, error) {
+func (s *GophermartService) RegisterUser(login, password string) (uuid.UUID, error) {
 	passwordHash := utils.Sha256Hex([]byte(password))
 
 	return s.repo.AddUser(login, passwordHash)
 }
 
-func (s *service) CheckPassword(login, password string) (uuid.UUID, error) {
+func (s *GophermartService) CheckPassword(login, password string) (uuid.UUID, error) {
 	passwordHash := utils.Sha256Hex([]byte(password))
 
 	userID, storedPasswordHash, err := s.repo.GetByLogin(login)

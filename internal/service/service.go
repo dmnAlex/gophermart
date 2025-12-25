@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type ServiceIface interface {
+type Service interface {
 	RegisterUser(login, password string) (uuid.UUID, error)
 	CheckPassword(login, password string) (uuid.UUID, error)
 
@@ -28,16 +28,16 @@ type ServiceIface interface {
 	Ping() error
 }
 
-type service struct {
-	repo           repository.RepoIface
+type GophermartService struct {
+	repo           repository.Repository
 	ordersChan     chan *model.Order
 	ordersStopChan chan struct{}
 	cfg            *config.Config
 	wg             sync.WaitGroup
 }
 
-func NewService(repo repository.RepoIface, cfg *config.Config) ServiceIface {
-	return &service{
+func NewGophermartService(repo repository.Repository, cfg *config.Config) *GophermartService {
+	return &GophermartService{
 		repo:           repo,
 		ordersChan:     make(chan *model.Order, consts.OrderChanSize),
 		ordersStopChan: make(chan struct{}),
@@ -45,6 +45,6 @@ func NewService(repo repository.RepoIface, cfg *config.Config) ServiceIface {
 	}
 }
 
-func (s *service) Ping() error {
+func (s *GophermartService) Ping() error {
 	return errors.Wrap(s.repo.Ping(), "ping")
 }

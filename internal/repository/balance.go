@@ -19,7 +19,7 @@ const getBalanceSQL = `
 	GROUP BY u.id
 `
 
-func (r *Repo) GetBalance(userID uuid.UUID) (model.Balance, error) {
+func (r *GophermartRepository) GetBalance(userID uuid.UUID) (model.Balance, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 	}
@@ -37,7 +37,7 @@ const lockUserForUpdateSQL = `
 	FOR UPDATE
 `
 
-func (r *Repo) LockUserForUpdate(userID uuid.UUID) error {
+func (r *GophermartRepository) LockUserForUpdate(userID uuid.UUID) error {
 	args := pgx.NamedArgs{
 		"id": userID,
 	}
@@ -70,7 +70,7 @@ const addWithdrawalSQL = `
 	SELECT id FROM attempt_insert
 `
 
-func (r *Repo) AddWithdrawal(userID uuid.UUID, number string, sum float64) (uuid.UUID, error) {
+func (r *GophermartRepository) AddWithdrawal(userID uuid.UUID, number string, sum float64) (uuid.UUID, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 		"number":  number,
@@ -89,7 +89,7 @@ const getWithdrawalsSQL = `
 	WHERE user_id = @user_id
 `
 
-func (r *Repo) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error) {
+func (r *GophermartRepository) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error) {
 	args := pgx.NamedArgs{
 		"user_id": userID,
 	}

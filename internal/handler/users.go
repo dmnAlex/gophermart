@@ -76,7 +76,7 @@ func (h *Handler) HandlePostAPIUserLogin(c *gin.Context) {
 func (h *Handler) setCookie(c *gin.Context, userID uuid.UUID) error {
 	claims := &model.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(consts.AuthTokenDutation)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(consts.AuthTokenDuration)),
 		},
 		UserID: userID,
 	}
@@ -85,7 +85,7 @@ func (h *Handler) setCookie(c *gin.Context, userID uuid.UUID) error {
 	if err != nil {
 		return errors.Wrap(err, "create token with claims")
 	}
-	c.SetCookie(consts.AuthTokenName, signedToken, int(consts.AuthTokenDutation.Seconds()), "/", "", false, true)
+	c.SetCookie(consts.AuthTokenName, signedToken, int(consts.AuthTokenDuration.Seconds()), "/", "", false, true)
 
 	return nil
 }

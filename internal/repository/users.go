@@ -12,7 +12,7 @@ const addUserSQL = `
 	RETURNING id
 `
 
-func (r *Repo) AddUser(login, passwordHash string) (uuid.UUID, error) {
+func (r *GophermartRepository) AddUser(login, passwordHash string) (uuid.UUID, error) {
 	args := pgx.NamedArgs{
 		"login":         login,
 		"password_hash": passwordHash,
@@ -30,7 +30,7 @@ const getPasswordSQL = `
 	WHERE login = @login
 `
 
-func (r *Repo) GetByLogin(login string) (uuid.UUID, string, error) {
+func (r *GophermartRepository) GetByLogin(login string) (uuid.UUID, string, error) {
 	args := pgx.NamedArgs{
 		"login": login,
 	}

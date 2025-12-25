@@ -8,12 +8,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (s *service) GetBalance(userID uuid.UUID) (model.Balance, error) {
+func (s *GophermartService) GetBalance(userID uuid.UUID) (model.Balance, error) {
 	return s.repo.GetBalance(userID)
 }
 
-func (s *service) AddWithdrawal(userID uuid.UUID, number string, sum float64) error {
-	err := s.repo.DoTx(func(rTx *repository.Repo) error {
+func (s *GophermartService) AddWithdrawal(userID uuid.UUID, number string, sum float64) error {
+	err := s.repo.DoTx(func(rTx *repository.GophermartRepository) error {
 		if err := rTx.LockUserForUpdate(userID); err != nil {
 			return errors.Wrap(err, "lock user for update")
 		}
@@ -29,6 +29,6 @@ func (s *service) AddWithdrawal(userID uuid.UUID, number string, sum float64) er
 	return errors.Wrap(err, "do tx")
 }
 
-func (s *service) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error) {
+func (s *GophermartService) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error) {
 	return s.repo.GetAllWithdrawals(userID)
 }

@@ -17,7 +17,7 @@ const updateOrderSQL = `
 	WHERE id = @id
 `
 
-func (r *Repo) UpdateOrder(id uuid.UUID, status orderstatus.Type, accrual *float64) error {
+func (r *GophermartRepository) UpdateOrder(id uuid.UUID, status orderstatus.Type, accrual *float64) error {
 	args := pgx.NamedArgs{
 		"id":      id,
 		"status":  status,
@@ -48,7 +48,7 @@ const lockAndGetOrderBatchSQL = `
 		o.id, o.number, o.status, o.accrual, o.uploaded_at
 `
 
-func (r *Repo) LockAndGetOrderBatch(batchSize int) ([]model.Order, error) {
+func (r *GophermartRepository) LockAndGetOrderBatch(batchSize int) ([]model.Order, error) {
 	args := pgx.NamedArgs{
 		"batch_size": batchSize,
 	}
@@ -62,7 +62,7 @@ const freeStaleLocksSQL = `
 		AND updated_at <= @threshold
 `
 
-func (r *Repo) FreeStaleLocks(threshold time.Time) error {
+func (r *GophermartRepository) FreeStaleLocks(threshold time.Time) error {
 	args := pgx.NamedArgs{
 		"threshold": threshold,
 	}

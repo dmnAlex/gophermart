@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *service) fetchNextOrderBatch() error {
+func (s *GophermartService) fetchNextOrderBatch() error {
 	orders, err := s.repo.LockAndGetOrderBatch(consts.OrderBatchSize)
 	if err != nil {
 		return errors.Wrap(err, "lock and get order")
@@ -34,7 +34,7 @@ func (s *service) fetchNextOrderBatch() error {
 	return nil
 }
 
-func (s *service) processOrder(order *model.Order) error {
+func (s *GophermartService) processOrder(order *model.Order) error {
 	defer func() {
 		if err := s.repo.UpdateOrder(order.ID, order.Status, order.Accrual); err != nil {
 			logger.Log.Error("update order", zap.Error(err))
@@ -78,7 +78,7 @@ func (s *service) processOrder(order *model.Order) error {
 	return nil
 }
 
-func (s *service) freeStaleLocks() error {
+func (s *GophermartService) freeStaleLocks() error {
 	threshold := time.Now().Add(-consts.OrderLockTimeout)
 
 	return s.repo.FreeStaleLocks(threshold)

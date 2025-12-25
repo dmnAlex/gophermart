@@ -34,10 +34,10 @@ func main() {
 		log.Fatalf("db error: %v", err)
 	}
 
-	repo := repository.NewRepository(db)
+	repo := repository.NewGophermartRepository(db)
 	defer repo.Close()
 
-	service := service.NewService(repo, cfg)
+	service := service.NewGophermartService(repo, cfg)
 	service.StartAccrualWorkers()
 
 	handler := handler.NewHandler(service, cfg)

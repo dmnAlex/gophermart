@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type RepoIface interface {
+type Repository interface {
 	AddUser(login, passwordHash string) (uuid.UUID, error)
 	GetByLogin(login string) (uuid.UUID, string, error)
 
@@ -28,29 +28,29 @@ type RepoIface interface {
 	LockAndGetOrderBatch(batchSize int) ([]model.Order, error)
 	FreeStaleLocks(threshold time.Time) error
 
-	DoTx(f func(r *Repo) error, opts ...*pgx.TxOptions) error
+	DoTx(f func(r *GophermartRepository) error, opts ...*pgx.TxOptions) error
 	Ping() error
 	Close() error
 }
 
-type Repo struct {
+type GophermartRepository struct {
 	db *pg.DB
 }
 
-func NewRepository(db *pg.DB) *Repo {
-	return &Repo{db: db}
+func NewGophermartRepository(db *pg.DB) *GophermartRepository {
+	return &GophermartRepository{db: db}
 }
 
-func (r *Repo) DoTx(f func(r *Repo) error, opts ...*pgx.TxOptions) error {
+func (r *GophermartRepository) DoTx(f func(r *GophermartRepository) error, opts ...*pgx.TxOptions) error {
 	return r.db.DoTx(func(db *pg.DB) error {
-		return f(NewRepository(db))
+		return f(NewGophermartRepository(db))
 	}, opts...)
 }
 
-func (r *Repo) Ping() error {
+func (r *GophermartRepository) Ping() error {
 	return errors.Wrap(r.db.Ping(), "ping")
 }
 
-func (r *Repo) Close() error {
+func (r *GophermartRepository) Close() error {
 	return errors.Wrap(r.db.Close(), "close")
 }

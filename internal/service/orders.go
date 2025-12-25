@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (s *service) AddOrder(number string, userID uuid.UUID) error {
+func (s *GophermartService) AddOrder(number string, userID uuid.UUID) error {
 	if err := s.repo.AddOrder(number, userID); err != nil {
 		if errors.Is(err, errx.ErrAlreadyExists) {
 			creatorUserID, err := s.repo.GetOrderUserID(number)
@@ -28,6 +28,6 @@ func (s *service) AddOrder(number string, userID uuid.UUID) error {
 	return nil
 }
 
-func (s *service) GetAllOrders(userID uuid.UUID) ([]model.Order, error) {
+func (s *GophermartService) GetAllOrders(userID uuid.UUID) ([]model.Order, error) {
 	return s.repo.GetOrdersByLogin(userID)
 }
