@@ -38,7 +38,7 @@ func main() {
 	defer repo.Close()
 
 	service := service.NewGophermartService(repo, cfg)
-	service.StartAccrualWorkers()
+	service.StartAccrualWorkers(globalCtx)
 
 	handler := handler.NewHandler(service, cfg)
 	server := server.NewServer(handler, cfg)

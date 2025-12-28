@@ -1,7 +1,7 @@
 package service
 
 import (
-	"sync"
+	"context"
 
 	"github.com/dmnAlex/gophermart/internal/config"
 	"github.com/dmnAlex/gophermart/internal/consts"
@@ -9,6 +9,7 @@ import (
 	"github.com/dmnAlex/gophermart/internal/repository"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 type Service interface {
@@ -22,26 +23,24 @@ type Service interface {
 	AddWithdrawal(userID uuid.UUID, number string, sum float64) error
 	GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, error)
 
-	StartAccrualWorkers()
-	StopAccrualWorkers()
+	StartAccrualWorkers(ctx context.Context)
+	StopAccrualWorkers() error
 
 	Ping() error
 }
 
 type GophermartService struct {
-	repo           repository.Repository
-	ordersChan     chan *model.Order
-	ordersStopChan chan struct{}
-	cfg            *config.Config
-	wg             sync.WaitGroup
+	repo       repository.Repository
+	ordersChan chan *model.Order
+	cfg        *config.Config
+	eg         *errgroup.Group
 }
 
 func NewGophermartService(repo repository.Repository, cfg *config.Config) *GophermartService {
 	return &GophermartService{
-		repo:           repo,
-		ordersChan:     make(chan *model.Order, consts.OrderChanSize),
-		ordersStopChan: make(chan struct{}),
-		cfg:            cfg,
+		repo:       repo,
+		ordersChan: make(chan *model.Order, consts.OrderChanSize),
+		cfg:        cfg,
 	}
 }
 

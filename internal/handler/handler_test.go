@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -59,12 +60,13 @@ func (m *MockService) GetAllWithdrawals(userID uuid.UUID) ([]model.Withdrawal, e
 	return args.Get(0).([]model.Withdrawal), args.Error(1)
 }
 
-func (m *MockService) StartAccrualWorkers() {
+func (m *MockService) StartAccrualWorkers(ctx context.Context) {
 	m.Called()
 }
 
-func (m *MockService) StopAccrualWorkers() {
-	m.Called()
+func (m *MockService) StopAccrualWorkers() error {
+	args := m.Called()
+	return args.Error(0)
 }
 
 func (m *MockService) Ping() error {

@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *GophermartService) fetchNextOrderBatch() error {
+func (s *GophermartService) fetchNextOrderBatch(ctx context.Context) error {
 	orders, err := s.repo.LockAndGetOrderBatch(consts.OrderBatchSize)
 	if err != nil {
 		return errors.Wrap(err, "lock and get order")
@@ -25,7 +25,7 @@ func (s *GophermartService) fetchNextOrderBatch() error {
 
 	for i := range orders {
 		select {
-		case <-s.ordersStopChan:
+		case <-ctx.Done():
 			return nil
 		case s.ordersChan <- &orders[i]:
 		}
