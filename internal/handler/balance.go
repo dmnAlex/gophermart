@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/dmnAlex/gophermart/internal/logger"
@@ -69,9 +70,14 @@ func (h *Handler) HandleGetAPIUserWithdrawals(c *gin.Context) {
 		return
 	}
 
-	for i := range withdrawals {
-		withdrawals[i].ProcessedAt = withdrawals[i].ProcessedAt.Truncate(time.Second)
+	truncated := func(yield func(model.Withdrawal) bool) {
+		for _, w := range withdrawals {
+			w.ProcessedAt = w.ProcessedAt.Truncate(time.Second)
+			if !yield(w) {
+				return
+			}
+		}
 	}
 
-	c.JSON(http.StatusOK, withdrawals)
+	c.JSON(http.StatusOK, slices.Collect(truncated))
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/dmnAlex/gophermart/internal/logger"
@@ -58,9 +59,14 @@ func (h *Handler) HandleGetAPIUserGetOrders(c *gin.Context) {
 		return
 	}
 
-	for i := range orders {
-		orders[i].UploadedAt = orders[i].UploadedAt.Truncate(time.Second)
+	truncated := func(yield func(model.Order) bool) {
+		for _, o := range orders {
+			o.UploadedAt = o.UploadedAt.Truncate(time.Second)
+			if !yield(o) {
+				return
+			}
+		}
 	}
 
-	c.JSON(http.StatusOK, orders)
+	c.JSON(http.StatusOK, slices.Collect(truncated))
 }
